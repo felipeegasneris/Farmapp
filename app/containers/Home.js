@@ -11,8 +11,7 @@ import { StyleProvider, Container, Header, Title, Content, Footer, FooterTab, Bu
 import {
     StyleSheet
 } from 'react-native';
-
-
+import {getRegionForCoordinates, regionFrom} from "../utilities";
 
 
 @inject('store')
@@ -22,6 +21,16 @@ export default class App extends Component<{}> {
     constructor(props) {
         super(props);
         console.log('la volaitaa');
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                console.log(position);
+                console.log(this.props.store);
+                this.props.store.geo = regionFrom(position.coords.latitude,position.coords.longitude, 1000);
+
+            },
+            (error) => console.log(error),
+            { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
+        );
 
     }
     render() {
@@ -41,17 +50,16 @@ export default class App extends Component<{}> {
                     <Content>
                         <Text>
                             This is Content Section
+                            {this.props.store.geo.latitude}
                         </Text>
-                        <MapView
-                            provider={ PROVIDER_GOOGLE }
-                            style={styles.map}
-                            initialRegion={{
-                                latitude: 39.7392,
-                                longitude: -104.9903,
-                                latitudeDelta: 0.0922,
-                                longitudeDelta: 0.0421,
-                            }}
-                        />
+                        {
+                            this.props.store.geo && <MapView
+                                provider={ PROVIDER_GOOGLE }
+                                style={styles.map}
+                                region={this.props.store.geo}
+                            />
+                        }
+
                     </Content>
                     <Footer>
                         <FooterTab>
