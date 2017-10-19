@@ -1,13 +1,13 @@
-import { StackNavigator } from 'react-navigation';
+import {StackNavigator} from 'react-navigation';
 
 import Home from './containers/Home';
 
 const stackNavigatorConfig = {
-    initialRouteName: 'Home'
+	initialRouteName: 'Home'
 };
 
 export default StackNavigator({
-    Home: {
-        screen: Home,
-    },
+	Home: {
+		screen: Home,
+	},
 }, stackNavigatorConfig);
