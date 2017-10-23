@@ -6,6 +6,7 @@
 
 import React, {Component} from 'react';
 import {observer, inject} from 'mobx-react';
+import {observable} from 'mobx';
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import {
 	StyleProvider, ActionSheet, Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, Text
@@ -16,13 +17,17 @@ import {
 import {regionFrom} from "../utilities";
 
 //const BUTTONS = ["Option 0", "Option 1", "Option 2", "Delete", "Cancel"];
-var BUTTONS = ["CRUZ VERDE", "AHUMADA", "SALCOBRAND", "Delete", "Cancel"];
-var DESTRUCTIVE_INDEX = 3;
-var CANCEL_INDEX = 4;
+const BUTTONS = ["CRUZ VERDE", "AHUMADA", "SALCOBRAND", "Cancel"];
+const CANCEL_INDEX = 3;
 
 @inject('store')
 @observer
-export default class App extends Component<{}> {
+export default class App extends Component {
+
+
+	@observable allActive = true;
+	@observable turnoActive = false;
+	@observable filterDisable = false;
 
 	constructor(props) {
 		super(props);
@@ -34,6 +39,10 @@ export default class App extends Component<{}> {
 			{enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
 		);
 		this.props.store.getAllFarmacias();
+	}
+
+	getFarmaciaByName(name) {
+		this.props.store.getFarmaciaByName(name);
 	}
 
 	render() {
@@ -87,25 +96,41 @@ export default class App extends Component<{}> {
 				</Content>
 				<Footer>
 					<FooterTab>
-						<Button vertical active={true}>
-							<Icon active={true} name="home" />
+						<Button vertical active={this.allActive}
+							onPress={() => {
+								//TODO: hacer esto en una funcion separada;
+								this.props.store.getAllFarmacias();
+
+								this.filterDisable = false;
+								this.turnoActive = false;
+								this.allActive = true;
+							}}
+						>
+							<Icon active={this.allActive} name="home" />
 							<Text>Todas</Text>
 						</Button>
-						<Button vertical>
-							<Icon  name="medkit" />
+						<Button vertical active={this.turnoActive}
+							onPress={() => {
+								this.props.store.getFarmaciasTurno();
+								this.filterDisable = true;
+								this.turnoActive = true;
+								this.allActive = false;
+							}}
+						>
+							<Icon  active={this.turnoActive} name="medkit" />
 							<Text>De turno</Text>
 						</Button>
-						<Button vertical
+						<Button vertical disabled={this.filterDisable}
 			        onPress={() =>
 				        ActionSheet.show(
 					        {
 						        options: BUTTONS,
 						        cancelButtonIndex: CANCEL_INDEX,
-						        destructiveButtonIndex: DESTRUCTIVE_INDEX,
 						        title: "Seleccione farmacia"
 					        },
 					        buttonIndex => {
-						        console.log(buttonIndex);
+						        if(buttonIndex !== 3)
+											this.getFarmaciaByName(BUTTONS[buttonIndex]);
 					        }
 				        )}
 						>
