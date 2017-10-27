@@ -9,6 +9,8 @@ class Store {
 
 	@action
 	async getAllFarmacias() {
+
+		//TODO: manejar si es que la respuesta viene mal
 		try {
 			let response = await fetch('http://datos.gob.cl/api/action/datastore_search?resource_id=a60f93af-6a8a-45b6-85ff-267f5dd37ad6&limit=20000000');
 			let data = await response.json();
